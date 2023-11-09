@@ -6,6 +6,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
 struct AssetInfo {
     uint256 peakBalance;
@@ -63,6 +64,7 @@ contract ICOVault is Initializable, Ownable, ReentrancyGuard {
         fundingStartTime = _fundingStartTime;
         fundingDeadline = _fundingDeadline;
         dataSource = _dataSource;
+        IVotes(_projectToken).getVotes(address(0)); // To make sure the project token is ERC20Votes
     }
 
     function fund(address asset, uint256 amount) external payable nonReentrant {
