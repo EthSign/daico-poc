@@ -1,14 +1,12 @@
 import {DeployFunction} from 'hardhat-deploy/types'
 import {HardhatRuntimeEnvironment} from 'hardhat/types'
 
-const deployExample: DeployFunction = async (
-    hre: HardhatRuntimeEnvironment
-) => {
+const deployImpl: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     const {deploy} = hre.deployments
     const {deployer} = await hre.getNamedAccounts()
 
-    await deploy('SimpleStorage', {
+    await deploy('ICOVault', {
         from: deployer,
         log: true,
         args: [],
@@ -16,5 +14,5 @@ const deployExample: DeployFunction = async (
     })
 }
 
-export default deployExample
-deployExample.tags = ['example']
+export default deployImpl
+deployImpl.tags = ['ICOVault', 'all']

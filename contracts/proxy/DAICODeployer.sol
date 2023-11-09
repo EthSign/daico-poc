@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {DAICOCustom} from "../interfaces/DAICOCustom.sol";
 
-contract DAICOVaultDeployer {
+contract DAICODeployer {
     event DAICOCustomDeployed(address instance);
 
     function deployDAICOCustom(

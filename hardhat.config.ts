@@ -31,6 +31,12 @@ export default {
             accounts: [process.env.PRIVATE_KEY],
             saveDeployments: true,
             zksync: false
+        },
+        sepolia: {
+            chainId: 11155111,
+            url: 'https://eth-sepolia.g.alchemy.com/v2/irTlUXcBaYDlCFNi9dHbjUxzm1pIfWbt',
+            accounts: [process.env.PRIVATE_KEY],
+            saveDeployments: true
         }
     },
     solidity: {

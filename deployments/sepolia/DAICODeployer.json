@@ -1,0 +1,90 @@
+{
+  "address": "0x772210A44c23DC1aE7271366f8FA26b6B206c81F",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "ERC1167FailedCreateClone",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "instance",
+          "type": "address"
+        }
+      ],
+      "name": "DAICOCustomDeployed",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "implementation",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "deployDAICOCustom",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "instance",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x2bf307bc52c5c786d08445816c83b9cf4e15356a52345a2b551428eb98c416a0",
+  "receipt": {
+    "to": null,
+    "from": "0x55D22d83752a9bE59B8959f97FCf3b2CAbca5094",
+    "contractAddress": "0x772210A44c23DC1aE7271366f8FA26b6B206c81F",
+    "transactionIndex": 19,
+    "gasUsed": "233554",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x16eafcacc02fbfba7379fa2b8887978b7795114df8372920697fe9eee2a6807c",
+    "transactionHash": "0x2bf307bc52c5c786d08445816c83b9cf4e15356a52345a2b551428eb98c416a0",
+    "logs": [],
+    "blockNumber": 4660501,
+    "cumulativeGasUsed": "3728725",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "b77ab2edff75691c4e19524ed1198b4f",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"ERC1167FailedCreateClone\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"instance\",\"type\":\"address\"}],\"name\":\"DAICOCustomDeployed\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"deployDAICOCustom\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"instance\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"ERC1167FailedCreateClone()\":[{\"details\":\"A clone instance deployment failed.\"}]},\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/proxy/DAICODeployer.sol\":\"DAICODeployer\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/proxy/Clones.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (proxy/Clones.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev https://eips.ethereum.org/EIPS/eip-1167[EIP 1167] is a standard for\\n * deploying minimal proxy contracts, also known as \\\"clones\\\".\\n *\\n * > To simply and cheaply clone contract functionality in an immutable way, this standard specifies\\n * > a minimal bytecode implementation that delegates all calls to a known, fixed address.\\n *\\n * The library includes functions to deploy a proxy using either `create` (traditional deployment) or `create2`\\n * (salted deterministic deployment). It also includes functions to predict the addresses of clones deployed using the\\n * deterministic method.\\n */\\nlibrary Clones {\\n    /**\\n     * @dev A clone instance deployment failed.\\n     */\\n    error ERC1167FailedCreateClone();\\n\\n    /**\\n     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.\\n     *\\n     * This function uses the create opcode, which should never revert.\\n     */\\n    function clone(address implementation) internal returns (address instance) {\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes\\n            // of the `implementation` address with the bytecode before the address.\\n            mstore(0x00, or(shr(0xe8, shl(0x60, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))\\n            // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.\\n            mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))\\n            instance := create(0, 0x09, 0x37)\\n        }\\n        if (instance == address(0)) {\\n            revert ERC1167FailedCreateClone();\\n        }\\n    }\\n\\n    /**\\n     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.\\n     *\\n     * This function uses the create2 opcode and a `salt` to deterministically deploy\\n     * the clone. Using the same `implementation` and `salt` multiple time will revert, since\\n     * the clones cannot be deployed twice at the same address.\\n     */\\n    function cloneDeterministic(address implementation, bytes32 salt) internal returns (address instance) {\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes\\n            // of the `implementation` address with the bytecode before the address.\\n            mstore(0x00, or(shr(0xe8, shl(0x60, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))\\n            // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.\\n            mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))\\n            instance := create2(0, 0x09, 0x37, salt)\\n        }\\n        if (instance == address(0)) {\\n            revert ERC1167FailedCreateClone();\\n        }\\n    }\\n\\n    /**\\n     * @dev Computes the address of a clone deployed using {Clones-cloneDeterministic}.\\n     */\\n    function predictDeterministicAddress(\\n        address implementation,\\n        bytes32 salt,\\n        address deployer\\n    ) internal pure returns (address predicted) {\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            let ptr := mload(0x40)\\n            mstore(add(ptr, 0x38), deployer)\\n            mstore(add(ptr, 0x24), 0x5af43d82803e903d91602b57fd5bf3ff)\\n            mstore(add(ptr, 0x14), implementation)\\n            mstore(ptr, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73)\\n            mstore(add(ptr, 0x58), salt)\\n            mstore(add(ptr, 0x78), keccak256(add(ptr, 0x0c), 0x37))\\n            predicted := keccak256(add(ptr, 0x43), 0x55)\\n        }\\n    }\\n\\n    /**\\n     * @dev Computes the address of a clone deployed using {Clones-cloneDeterministic}.\\n     */\\n    function predictDeterministicAddress(\\n        address implementation,\\n        bytes32 salt\\n    ) internal view returns (address predicted) {\\n        return predictDeterministicAddress(implementation, salt, address(this));\\n    }\\n}\\n\",\"keccak256\":\"0xd18408af8a91bedb3d56343eeb9b30eb852e6dea93a5e2d5c6db9ca4cb905155\",\"license\":\"MIT\"},\"contracts/interfaces/DAICOCustom.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\npragma solidity ^0.8.20;\\n\\nimport {IVersionable} from \\\"./IVersionable.sol\\\";\\n\\ninterface DAICOCustom is IVersionable {\\n    function initialize(bytes memory data) external;\\n\\n    function transferOwnership(address newOwner) external;\\n}\\n\",\"keccak256\":\"0x5577a186cec8778fe53555fdbc7f6ed7d984c95c8bf8aa18f394fd892bb75ad4\",\"license\":\"UNLICENSED\"},\"contracts/interfaces/IVersionable.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\npragma solidity ^0.8.17;\\n\\ninterface IVersionable {\\n    function version_ethsign() external pure returns (string memory);\\n}\\n\",\"keccak256\":\"0x1378194ef0231b6f598bd3d5e7e2b46180f46ce11fde9bd55ae202b0fdd4228c\",\"license\":\"UNLICENSED\"},\"contracts/proxy/DAICODeployer.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\npragma solidity ^0.8.20;\\n\\nimport {Clones} from \\\"@openzeppelin/contracts/proxy/Clones.sol\\\";\\nimport {DAICOCustom} from \\\"../interfaces/DAICOCustom.sol\\\";\\n\\ncontract DAICODeployer {\\n    event DAICOCustomDeployed(address instance);\\n\\n    function deployDAICOCustom(\\n        address implementation,\\n        bytes memory data\\n    ) external returns (address instance) {\\n        instance = Clones.clone(implementation);\\n        DAICOCustom(instance).initialize(data);\\n        DAICOCustom(instance).transferOwnership(msg.sender);\\n        emit DAICOCustomDeployed(instance);\\n    }\\n}\\n\",\"keccak256\":\"0x2e94f468dec84344e27de41156d66eeef4d783ce81e4e8d872ad4fe71527f739\",\"license\":\"UNLICENSED\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610343806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c806354943e1a14610030575b600080fd5b61004361003e3660046101ef565b61005f565b6040516001600160a01b03909116815260200160405180910390f35b600061006a83610167565b60405163439fab9160e01b81529091506001600160a01b0382169063439fab91906100999085906004016102bf565b600060405180830381600087803b1580156100b357600080fd5b505af11580156100c7573d6000803e3d6000fd5b505060405163f2fde38b60e01b81523360048201526001600160a01b038416925063f2fde38b9150602401600060405180830381600087803b15801561010c57600080fd5b505af1158015610120573d6000803e3d6000fd5b50506040516001600160a01b03841681527f0a92c09a6c74f0b5fd287c218149b722a4ac697273706620fbdd884cbc4df2fe9250602001905060405180910390a192915050565b6000763d602d80600a3d3981f3363d3d373d3d3d363d730000008260601b60e81c176000526e5af43d82803e903d91602b57fd5bf38260781b17602052603760096000f090506001600160a01b0381166101d4576040516330be1a3d60e21b815260040160405180910390fd5b919050565b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561020257600080fd5b82356001600160a01b038116811461021957600080fd5b9150602083013567ffffffffffffffff8082111561023657600080fd5b818501915085601f83011261024a57600080fd5b81358181111561025c5761025c6101d9565b604051601f8201601f19908116603f01168101908382118183101715610284576102846101d9565b8160405282815288602084870101111561029d57600080fd5b8260208601602083013760006020848301015280955050505050509250929050565b600060208083528351808285015260005b818110156102ec578581018301518582016040015282016102d0565b506000604082860101526040601f19601f830116850101925050509291505056fea2646970667358221220a1d8509192235f7d0ba3011502372ec152fe188a274021abb8f58680037b9c5b64736f6c63430008140033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c806354943e1a14610030575b600080fd5b61004361003e3660046101ef565b61005f565b6040516001600160a01b03909116815260200160405180910390f35b600061006a83610167565b60405163439fab9160e01b81529091506001600160a01b0382169063439fab91906100999085906004016102bf565b600060405180830381600087803b1580156100b357600080fd5b505af11580156100c7573d6000803e3d6000fd5b505060405163f2fde38b60e01b81523360048201526001600160a01b038416925063f2fde38b9150602401600060405180830381600087803b15801561010c57600080fd5b505af1158015610120573d6000803e3d6000fd5b50506040516001600160a01b03841681527f0a92c09a6c74f0b5fd287c218149b722a4ac697273706620fbdd884cbc4df2fe9250602001905060405180910390a192915050565b6000763d602d80600a3d3981f3363d3d373d3d3d363d730000008260601b60e81c176000526e5af43d82803e903d91602b57fd5bf38260781b17602052603760096000f090506001600160a01b0381166101d4576040516330be1a3d60e21b815260040160405180910390fd5b919050565b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561020257600080fd5b82356001600160a01b038116811461021957600080fd5b9150602083013567ffffffffffffffff8082111561023657600080fd5b818501915085601f83011261024a57600080fd5b81358181111561025c5761025c6101d9565b604051601f8201601f19908116603f01168101908382118183101715610284576102846101d9565b8160405282815288602084870101111561029d57600080fd5b8260208601602083013760006020848301015280955050505050509250929050565b600060208083528351808285015260005b818110156102ec578581018301518582016040015282016102d0565b506000604082860101526040601f19601f830116850101925050509291505056fea2646970667358221220a1d8509192235f7d0ba3011502372ec152fe188a274021abb8f58680037b9c5b64736f6c63430008140033",
+  "devdoc": {
+    "errors": {
+      "ERC1167FailedCreateClone()": [
+        {
+          "details": "A clone instance deployment failed."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
