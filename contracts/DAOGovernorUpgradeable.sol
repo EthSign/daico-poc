@@ -45,7 +45,7 @@ contract DAOGovernorUpgradeable is
     }
 
     // solhint-disable-next-line ordering
-    function version_ethsign() external pure returns (string memory) {
+    function version_ethsign() external pure virtual returns (string memory) {
         return "0.0.1";
     }
 
