@@ -153,6 +153,10 @@ contract ICOVault is
         emit FundsRefunded(asset, msg.sender, amountRefundable);
     }
 
+    function version_ethsign() external pure returns (string memory) {
+        return "0.0.1";
+    }
+
     function transferOwnership(
         address newOwner
     ) public virtual override(DAICOCustom, OwnableUpgradeable) {

@@ -44,6 +44,11 @@ contract DAOGovernorUpgradeable is
         _proposalThreshold = _proposalThreshold_;
     }
 
+    // solhint-disable-next-line ordering
+    function version_ethsign() external pure returns (string memory) {
+        return "0.0.1";
+    }
+
     function transferOwnership(
         address newOwner
     ) public virtual override(DAICOCustom, OwnableUpgradeable) {

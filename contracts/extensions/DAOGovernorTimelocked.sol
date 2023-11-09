@@ -43,6 +43,11 @@ contract DAOGovernorTimelockedUpgradeable is
         __GovernorTimelockControl_init_unchained(_timelockController);
     }
 
+    // solhint-disable-next-line ordering
+    function version_ethsign() external pure override returns (string memory) {
+        return "0.0.1";
+    }
+
     function votingDelay()
         public
         view
