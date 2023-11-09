@@ -31,16 +31,19 @@ contract ICOVault is Initializable, Ownable, ReentrancyGuard {
     uint256 public fundingStartTime;
     uint256 public fundingDeadline;
     address public beneficiary;
+    bool public isRefundEnabled;
 
-    // token => investor => amount
+    // asset => investor => amount
     mapping(address => mapping(address => uint256)) public investments;
-    // token => amount
+    // asset => amount
     mapping(address => AssetInfo) public assetInfo;
 
     event FundAdded(address asset, uint256 amount, uint256 amountOffered);
     event FlowRateChanged(address asset, uint256 oldRate, uint256 newRate);
     event BeneficiaryChanged(address oldBeneficiary, address newBeneficiary);
     event FundsWithdrawn(address asset, uint256 amount);
+    event RefundEnabled();
+    event FundsRefunded(address asset, address investor, uint256 amount);
 
     error BeforeFundingStartTime();
     error PastFundingDeadline();
@@ -52,6 +55,11 @@ contract ICOVault is Initializable, Ownable, ReentrancyGuard {
         _;
     }
 
+    modifier onlyRefundEnabled() {
+        if (!isRefundEnabled) revert Unauthorized();
+        _;
+    }
+
     constructor() Ownable(msg.sender) {}
 
     function initialize(
@@ -59,7 +67,7 @@ contract ICOVault is Initializable, Ownable, ReentrancyGuard {
         uint256 _fundingStartTime,
         uint256 _fundingDeadline,
         ICOVaultExchangeRateDataSource _dataSource
-    ) external initializer {
+    ) external initializer onlyOwner {
         projectToken = _projectToken;
         fundingStartTime = _fundingStartTime;
         fundingDeadline = _fundingDeadline;
@@ -118,6 +126,25 @@ contract ICOVault is Initializable, Ownable, ReentrancyGuard {
         emit FundsWithdrawn(asset, amountWithdrawable);
     }
 
+    function enableRefund() external onlyOwner {
+        isRefundEnabled = true;
+        emit RefundEnabled();
+    }
+
+    function refund(address asset) external onlyRefundEnabled {
+        uint256 amountRefundable = calculateAmountRefundable(asset, msg.sender);
+        if (asset == address(0)) {
+            (bool sent, bytes memory data) = payable(msg.sender).call{
+                value: amountRefundable
+            }("");
+            // solhint-disable-nextline custom-errors
+            require(sent, string(data));
+        } else {
+            IERC20(asset).safeTransfer(msg.sender, amountRefundable);
+        }
+        emit FundsRefunded(asset, msg.sender, amountRefundable);
+    }
+
     function calculateAmountWithdrawable(
         address asset
     ) public view returns (uint256) {
@@ -129,5 +156,15 @@ contract ICOVault is Initializable, Ownable, ReentrancyGuard {
             amountWithdrawable > maxAmountWithdrawable
                 ? maxAmountWithdrawable
                 : amountWithdrawable;
+    }
+
+    function calculateAmountRefundable(
+        address asset,
+        address investor
+    ) public view returns (uint256) {
+        AssetInfo memory a = assetInfo[asset];
+        return
+            ((a.peakBalance - a.spentBalance) * investments[asset][investor]) /
+            a.peakBalance;
     }
 }
