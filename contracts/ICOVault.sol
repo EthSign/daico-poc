@@ -14,7 +14,8 @@ struct AssetInfo {
     uint256 peakBalance;
     uint256 spentBalance;
     uint256 flowRate;
-    uint256 lastWithdrawal;
+    uint256 lastCheckpoint;
+    uint256 pendingBalanceAtLastCheckpoint;
 }
 
 contract ICOVault is
@@ -26,16 +27,18 @@ contract ICOVault is
     using SafeERC20 for IERC20;
 
     address public projectToken;
+    address public fundingAsset;
     ICOVaultExchangeRateDataSource public dataSource;
     uint256 public fundingStartTime;
     uint256 public fundingDeadline;
     address public beneficiary;
     bool public isRefundEnabled;
 
+    AssetInfo public etherAssetInfo;
+    AssetInfo public erc20AssetInfo;
+
     // asset => investor => amount
     mapping(address => mapping(address => uint256)) public investments;
-    // asset => amount
-    mapping(address => AssetInfo) public assetInfo;
 
     event FundAdded(address asset, uint256 amount, uint256 amountOffered);
     event FlowRateChanged(address asset, uint256 oldRate, uint256 newRate);
@@ -48,6 +51,7 @@ contract ICOVault is
     error PastFundingDeadline();
     error InvalidFundingInput();
     error Unauthorized();
+    error Unimplemented();
 
     modifier onlyBeneficiary() {
         if (msg.sender != beneficiary) revert Unauthorized();
@@ -66,14 +70,22 @@ contract ICOVault is
     function initialize(bytes calldata data) public initializer {
         (
             address _projectToken,
+            address _fundingAsset,
             uint256 _fundingStartTime,
             uint256 _fundingDeadline,
             ICOVaultExchangeRateDataSource _dataSource
         ) = abi.decode(
                 data,
-                (address, uint256, uint256, ICOVaultExchangeRateDataSource)
+                (
+                    address,
+                    address,
+                    uint256,
+                    uint256,
+                    ICOVaultExchangeRateDataSource
+                )
             );
         projectToken = _projectToken;
+        fundingAsset = _fundingAsset;
         fundingStartTime = _fundingStartTime;
         fundingDeadline = _fundingDeadline;
         dataSource = _dataSource;
@@ -86,11 +98,11 @@ contract ICOVault is
     function fund(address asset, uint256 amount) external payable nonReentrant {
         if (block.timestamp < fundingStartTime) revert BeforeFundingStartTime();
         if (block.timestamp > fundingDeadline) revert PastFundingDeadline();
-        if (asset != address(0) && msg.value > 0) revert InvalidFundingInput();
-        AssetInfo storage a = assetInfo[asset];
-        if (a.lastWithdrawal == 0) {
-            a.lastWithdrawal = fundingDeadline;
-        }
+        if (
+            (asset != address(0) && msg.value > 0) ||
+            (asset != address(0) && asset != fundingAsset)
+        ) revert InvalidFundingInput();
+        AssetInfo storage a = _getAssetInfo(asset);
         uint256 amountToSend;
         if (asset != address(0)) {
             IERC20(asset).safeTransferFrom(msg.sender, address(this), amount);
@@ -108,7 +120,8 @@ contract ICOVault is
     }
 
     function setRate(address asset, uint256 flowRate) external onlyOwner {
-        AssetInfo storage a = assetInfo[asset];
+        checkpoint(asset);
+        AssetInfo storage a = _getAssetInfo(asset);
         emit FlowRateChanged(asset, a.flowRate, flowRate);
         a.flowRate = flowRate;
     }
@@ -119,9 +132,11 @@ contract ICOVault is
     }
 
     function withdraw(address asset) external onlyBeneficiary {
-        AssetInfo storage a = assetInfo[asset];
-        uint256 amountWithdrawable = calculateAmountWithdrawable(asset);
+        AssetInfo storage a = _getAssetInfo(asset);
+        checkpoint(asset);
+        uint256 amountWithdrawable = a.pendingBalanceAtLastCheckpoint;
         a.spentBalance += amountWithdrawable;
+        a.pendingBalanceAtLastCheckpoint = 0;
         if (asset == address(0)) {
             (bool sent, bytes memory data) = payable(beneficiary).call{
                 value: amountWithdrawable
@@ -135,6 +150,7 @@ contract ICOVault is
     }
 
     function enableRefund() external onlyOwner {
+        if (block.timestamp < fundingDeadline) revert Unauthorized();
         isRefundEnabled = true;
         emit RefundEnabled();
     }
@@ -163,26 +179,43 @@ contract ICOVault is
         OwnableUpgradeable.transferOwnership(newOwner);
     }
 
-    function calculateAmountWithdrawable(
-        address asset
-    ) public view returns (uint256) {
-        AssetInfo memory a = assetInfo[asset];
-        uint256 amountWithdrawable = (block.timestamp - a.lastWithdrawal) *
-            a.flowRate;
-        uint256 maxAmountWithdrawable = a.peakBalance - a.spentBalance;
-        return
-            amountWithdrawable > maxAmountWithdrawable
-                ? maxAmountWithdrawable
-                : amountWithdrawable;
+    function checkpoint(address asset) public {
+        AssetInfo storage a = _getAssetInfo(asset);
+        uint256 pendingBalanceSinceLastCheckpoint = (block.timestamp -
+            a.lastCheckpoint) * a.flowRate;
+        uint256 totalPendingBalance = a.pendingBalanceAtLastCheckpoint +
+            pendingBalanceSinceLastCheckpoint;
+        uint256 maxPendingBalance = a.peakBalance - a.spentBalance;
+        a.lastCheckpoint = block.timestamp;
+        a.pendingBalanceAtLastCheckpoint = totalPendingBalance >
+            maxPendingBalance
+            ? maxPendingBalance
+            : totalPendingBalance;
     }
 
     function calculateAmountRefundable(
         address asset,
         address investor
     ) public view returns (uint256) {
-        AssetInfo memory a = assetInfo[asset];
+        AssetInfo memory a = _getAssetInfo(asset);
         return
-            ((a.peakBalance - a.spentBalance) * investments[asset][investor]) /
-            a.peakBalance;
+            ((a.peakBalance -
+                a.spentBalance -
+                a.pendingBalanceAtLastCheckpoint) *
+                investments[asset][investor]) / a.peakBalance;
+    }
+
+    function _getAssetInfo(
+        address asset
+    ) internal view returns (AssetInfo storage) {
+        AssetInfo storage a;
+        if (asset == fundingAsset) {
+            a = erc20AssetInfo;
+        } else if (asset == address(0)) {
+            a = etherAssetInfo;
+        } else {
+            revert Unimplemented();
+        }
+        return a;
     }
 }
