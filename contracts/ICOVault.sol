@@ -2,11 +2,13 @@
 pragma solidity ^0.8.20;
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
+import {ICOVaultExchangeRateDataSource} from "./interfaces/ICOVaultExchangeRateDataSource.sol";
+import {DAICOCustom} from "./interfaces/DAICOCustom.sol";
 
 struct AssetInfo {
     uint256 peakBalance;
@@ -15,15 +17,12 @@ struct AssetInfo {
     uint256 lastWithdrawal;
 }
 
-interface ICOVaultExchangeRateDataSource {
-    function tokensPerFundingUnit() external view returns (uint256);
-
-    function tokensPerFundingUnit(
-        address asset
-    ) external view returns (uint256);
-}
-
-contract ICOVault is Initializable, Ownable, ReentrancyGuard {
+contract ICOVault is
+    DAICOCustom,
+    Initializable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable
+{
     using SafeERC20 for IERC20;
 
     address public projectToken;
@@ -60,21 +59,30 @@ contract ICOVault is Initializable, Ownable, ReentrancyGuard {
         _;
     }
 
-    constructor() Ownable(msg.sender) {}
+    constructor() {
+        _disableInitializers();
+    }
 
-    function initialize(
-        address _projectToken,
-        uint256 _fundingStartTime,
-        uint256 _fundingDeadline,
-        ICOVaultExchangeRateDataSource _dataSource
-    ) external initializer onlyOwner {
+    function initialize(bytes calldata data) public initializer {
+        (
+            address _projectToken,
+            uint256 _fundingStartTime,
+            uint256 _fundingDeadline,
+            ICOVaultExchangeRateDataSource _dataSource
+        ) = abi.decode(
+                data,
+                (address, uint256, uint256, ICOVaultExchangeRateDataSource)
+            );
         projectToken = _projectToken;
         fundingStartTime = _fundingStartTime;
         fundingDeadline = _fundingDeadline;
         dataSource = _dataSource;
         IVotes(_projectToken).getVotes(address(0)); // To make sure the project token is ERC20Votes
+        __ReentrancyGuard_init_unchained();
+        __Ownable_init_unchained(msg.sender);
     }
 
+    // solhint-disable-next-line ordering
     function fund(address asset, uint256 amount) external payable nonReentrant {
         if (block.timestamp < fundingStartTime) revert BeforeFundingStartTime();
         if (block.timestamp > fundingDeadline) revert PastFundingDeadline();
@@ -93,8 +101,8 @@ contract ICOVault is Initializable, Ownable, ReentrancyGuard {
         } else if (msg.value > 0) {
             investments[address(0)][msg.sender] += msg.value;
             a.peakBalance += msg.value;
-            amountToSend = dataSource.tokensPerFundingUnit() * amount;
-            emit FundAdded(address(0), msg.value, amountToSend);
+            amountToSend = dataSource.tokensPerFundingUnit(asset) * amount;
+            emit FundAdded(asset, msg.value, amountToSend);
         }
         IERC20(projectToken).safeTransfer(msg.sender, amountToSend);
     }
@@ -143,6 +151,12 @@ contract ICOVault is Initializable, Ownable, ReentrancyGuard {
             IERC20(asset).safeTransfer(msg.sender, amountRefundable);
         }
         emit FundsRefunded(asset, msg.sender, amountRefundable);
+    }
+
+    function transferOwnership(
+        address newOwner
+    ) public virtual override(DAICOCustom, OwnableUpgradeable) {
+        OwnableUpgradeable.transferOwnership(newOwner);
     }
 
     function calculateAmountWithdrawable(

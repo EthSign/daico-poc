@@ -9,22 +9,36 @@ contract DAOGovernorTimelockedUpgradeable is
     DAOGovernorUpgradeable,
     GovernorTimelockControlUpgradeable
 {
-    function initialize(
-        string calldata _name,
-        IVotes _votingToken,
-        uint256 _quorumNumeratorValue,
-        uint256 _votingDelay_,
-        uint256 _votingPeriod_,
-        uint256 _proposalThreshold_,
-        TimelockControllerUpgradeable _timelockController
-    ) public initializer {
+    function initialize(bytes memory data) public virtual override initializer {
+        (
+            string memory _name,
+            IVotes _votingToken,
+            uint256 _quorumNumeratorValue,
+            uint256 _votingDelay_,
+            uint256 _votingPeriod_,
+            uint256 _proposalThreshold_,
+            TimelockControllerUpgradeable _timelockController
+        ) = abi.decode(
+                data,
+                (
+                    string,
+                    IVotes,
+                    uint256,
+                    uint256,
+                    uint256,
+                    uint256,
+                    TimelockControllerUpgradeable
+                )
+            );
         super.initialize(
-            _name,
-            _votingToken,
-            _quorumNumeratorValue,
-            _votingDelay_,
-            _votingPeriod_,
-            _proposalThreshold_
+            abi.encode(
+                _name,
+                _votingToken,
+                _quorumNumeratorValue,
+                _votingDelay_,
+                _votingPeriod_,
+                _proposalThreshold_
+            )
         );
         __GovernorTimelockControl_init_unchained(_timelockController);
     }

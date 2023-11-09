@@ -6,8 +6,10 @@ import {GovernorCountingSimpleUpgradeable} from "@openzeppelin/contracts-upgrade
 import {GovernorVotesQuorumFractionUpgradeable} from "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 import {ICOVault} from "./ICOVault.sol";
+import {DAICOCustom} from "./interfaces/DAICOCustom.sol";
 
 contract DAOGovernorUpgradeable is
+    DAICOCustom,
     OwnableUpgradeable,
     GovernorVotesQuorumFractionUpgradeable,
     GovernorCountingSimpleUpgradeable
@@ -16,14 +18,22 @@ contract DAOGovernorUpgradeable is
     uint256 internal _votingPeriod;
     uint256 internal _proposalThreshold;
 
-    function initialize(
-        string calldata _name,
-        IVotes _votingToken,
-        uint256 _quorumNumeratorValue,
-        uint256 _votingDelay_,
-        uint256 _votingPeriod_,
-        uint256 _proposalThreshold_
-    ) public initializer {
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(bytes memory data) public virtual override initializer {
+        (
+            string memory _name,
+            IVotes _votingToken,
+            uint256 _quorumNumeratorValue,
+            uint256 _votingDelay_,
+            uint256 _votingPeriod_,
+            uint256 _proposalThreshold_
+        ) = abi.decode(
+                data,
+                (string, IVotes, uint256, uint256, uint256, uint256)
+            );
         _votingToken.getVotes(address(0)); // To make sure the project token is ERC20Votes
         __Governor_init(_name);
         __GovernorVotes_init_unchained(_votingToken);
@@ -32,6 +42,12 @@ contract DAOGovernorUpgradeable is
         _votingDelay = _votingDelay_;
         _votingPeriod = _votingPeriod_;
         _proposalThreshold = _proposalThreshold_;
+    }
+
+    function transferOwnership(
+        address newOwner
+    ) public virtual override(DAICOCustom, OwnableUpgradeable) {
+        OwnableUpgradeable.transferOwnership(newOwner);
     }
 
     function votingDelay() public view virtual override returns (uint256) {
