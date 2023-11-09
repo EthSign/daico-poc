@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import {ICOVault, ICOVaultExchangeRateDataSource} from "../ICOVault.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {DAICOCustom} from "../interfaces/DAICOCustom.sol";
 
