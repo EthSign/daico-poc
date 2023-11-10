@@ -101,7 +101,9 @@ contract ICOVault is
         fundingDeadline = _fundingDeadline;
         dataSource = _dataSource;
         etherAssetInfo.flowRate = _etherInitialFlowRate;
+        etherAssetInfo.lastCheckpoint = _fundingDeadline;
         erc20AssetInfo.flowRate = _erc20InitialFlowRate;
+        erc20AssetInfo.lastCheckpoint = _fundingDeadline;
         beneficiary = _initialBeneficiary;
         IVotes(_projectToken).getVotes(address(0)); // To make sure the project token is ERC20Votes
         __ReentrancyGuard_init_unchained();
