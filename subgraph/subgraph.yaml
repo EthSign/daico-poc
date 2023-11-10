@@ -1,0 +1,45 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: ICOVault
+    network: sepolia
+    source:
+      address: "0x29Dd65cb8654aE596d04bdf73Dd8995AAe4934b7"
+      abi: ICOVault
+      startBlock: 4665024
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - BeneficiaryChanged
+        - FlowRateChanged
+        - FundAdded
+        - FundsRefunded
+        - FundsWithdrawn
+        - Initialized
+        - OwnershipTransferred
+        - RefundEnabled
+      abis:
+        - name: ICOVault
+          file: ./abis/ICOVault.json
+      eventHandlers:
+        - event: BeneficiaryChanged(address,address)
+          handler: handleBeneficiaryChanged
+        - event: FlowRateChanged(address,uint256,uint256)
+          handler: handleFlowRateChanged
+        - event: FundAdded(address,address,uint256,uint256)
+          handler: handleFundAdded
+        - event: FundsRefunded(address,address,uint256)
+          handler: handleFundsRefunded
+        - event: FundsWithdrawn(address,uint256)
+          handler: handleFundsWithdrawn
+        - event: Initialized(uint64)
+          handler: handleInitialized
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: RefundEnabled()
+          handler: handleRefundEnabled
+      file: ./src/ico-vault.ts

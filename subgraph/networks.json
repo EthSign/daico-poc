@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "ICOVault": {
+      "address": "0x29Dd65cb8654aE596d04bdf73Dd8995AAe4934b7",
+      "startBlock": 4665024
+    }
+  }
+}

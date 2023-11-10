@@ -40,7 +40,12 @@ contract ICOVault is
     // asset => investor => amount
     mapping(address => mapping(address => uint256)) public investments;
 
-    event FundAdded(address asset, uint256 amount, uint256 amountOffered);
+    event FundAdded(
+        address asset,
+        address investor,
+        uint256 amount,
+        uint256 amountOffered
+    );
     event FlowRateChanged(address asset, uint256 oldRate, uint256 newRate);
     event BeneficiaryChanged(address oldBeneficiary, address newBeneficiary);
     event FundsWithdrawn(address asset, uint256 amount);
@@ -109,12 +114,12 @@ contract ICOVault is
             investments[asset][msg.sender] += amount;
             a.peakBalance += amount;
             amountToSend = dataSource.tokensPerFundingUnit(asset) * amount;
-            emit FundAdded(asset, amount, amountToSend);
+            emit FundAdded(asset, msg.sender, amount, amountToSend);
         } else if (msg.value > 0) {
             investments[address(0)][msg.sender] += msg.value;
             a.peakBalance += msg.value;
             amountToSend = dataSource.tokensPerFundingUnit(asset) * amount;
-            emit FundAdded(asset, msg.value, amountToSend);
+            emit FundAdded(asset, msg.sender, msg.value, amountToSend);
         }
         IERC20(projectToken).safeTransfer(msg.sender, amountToSend);
     }
