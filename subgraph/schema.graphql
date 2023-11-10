@@ -1,4 +1,4 @@
-type DAICustomDeployed @entity(immutable: true) {
+type DAICOCustomDeployed @entity(immutable: true) {
   id: Bytes!
   deployer: Bytes!
   implementataion: Bytes!

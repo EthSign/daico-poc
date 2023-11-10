@@ -1,12 +1,12 @@
 import {DataSourceContext} from '@graphprotocol/graph-ts'
 import {DAICOCustomDeployed as DAICOCustomDeployedEvent} from '../generated/DAICODeployer/DAICODeployer'
-import {DAICustomDeployed} from '../generated/schema'
+import {DAICOCustomDeployed} from '../generated/schema'
 import {ICOVault} from '../generated/templates'
 
 export function handleDAICOCustomDeployed(
     event: DAICOCustomDeployedEvent
 ): void {
-    let entity = new DAICustomDeployed(event.params.instance)
+    let entity = new DAICOCustomDeployed(event.params.instance)
     entity.deployer = event.params.deployer
     entity.implementataion = event.params.implemetation
     entity.module = event.params.module
