@@ -1,6 +1,7 @@
 import {DataSourceContext} from '@graphprotocol/graph-ts'
 import {DAICOCustomDeployed as DAICOCustomDeployedEvent} from '../generated/DAICODeployer/DAICODeployer'
 import {DAICustomDeployed} from '../generated/schema'
+import {ICOVault} from '../generated/templates'
 
 export function handleDAICOCustomDeployed(
     event: DAICOCustomDeployedEvent
@@ -13,4 +14,8 @@ export function handleDAICOCustomDeployed(
 
     let context = new DataSourceContext()
     context.setBytes('instance', event.params.instance)
+
+    if (event.params.module == 'ICOVault') {
+        ICOVault.createWithContext(event.params.implemetation, context)
+    }
 }
