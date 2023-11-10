@@ -6,7 +6,7 @@ const deployImpl: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const {deploy} = hre.deployments
     const {deployer} = await hre.getNamedAccounts()
 
-    await deploy('DAOGovernorUpgradeable', {
+    await deploy('DAOGovernorDeployableOnceWithoutGovernance', {
         from: deployer,
         log: true,
         args: [],
