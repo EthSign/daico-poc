@@ -8,7 +8,7 @@ contract DAICODeployer {
     event DAICOCustomDeployed(
         address deployer,
         address instance,
-        address implemetation,
+        address implementation,
         string module
     );
 

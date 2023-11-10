@@ -8,7 +8,7 @@ export function handleDAICOCustomDeployed(
 ): void {
     let entity = new DAICOCustomDeployed(event.params.instance)
     entity.deployer = event.params.deployer
-    entity.implementataion = event.params.implemetation
+    entity.implementation = event.params.implemetation
     entity.module = event.params.module
     entity.save()
 
@@ -16,11 +16,8 @@ export function handleDAICOCustomDeployed(
     context.setBytes('instance', event.params.instance)
 
     if (event.params.module == 'ICOVault') {
-        ICOVault.createWithContext(event.params.implemetation, context)
+        ICOVault.createWithContext(event.params.instance, context)
     } else if (event.params.module == 'DAOGovernor') {
-        DAOGovernorUpgradeable.createWithContext(
-            event.params.implemetation,
-            context
-        )
+        DAOGovernorUpgradeable.createWithContext(event.params.instance, context)
     }
 }

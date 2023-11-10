@@ -116,7 +116,8 @@ contract ICOVault is
         if (block.timestamp > fundingDeadline) revert PastFundingDeadline();
         if (
             (asset != address(0) && msg.value > 0) ||
-            (asset != address(0) && asset != fundingAsset)
+            (asset != address(0) && asset != fundingAsset) ||
+            (asset == address(0) && msg.value == 0)
         ) revert InvalidFundingInput();
         AssetInfo storage a = _getAssetInfo(asset);
         uint256 amountToSend;
