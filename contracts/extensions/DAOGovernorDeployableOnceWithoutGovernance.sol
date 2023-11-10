@@ -17,9 +17,18 @@ contract DAOGovernorDeployableOnceWithoutGovernance is DAOGovernorUpgradeable {
     ) external onlyOwner returns (address) {
         if (_hasDeployed) revert Unauthorized();
         _hasDeployed = true;
-        (address _projectToken, , , , ) = abi.decode(
+        (address _projectToken, , , , , , , ) = abi.decode(
             data,
-            (address, address, uint256, uint256, address)
+            (
+                address,
+                address,
+                uint256,
+                uint256,
+                uint256,
+                uint256,
+                address,
+                address
+            )
         );
         if (address(token()) != _projectToken) revert TokenMismatch();
         return deployer.deployDAICOCustom(implementation, data, "ICOVault");
