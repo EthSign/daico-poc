@@ -1,5 +1,13 @@
+type DAICustomDeployed @entity(immutable: true) {
+  id: Bytes!
+  deployer: Bytes!
+  implementataion: Bytes!
+  module: String!
+}
+
 type BeneficiaryChanged @entity(immutable: true) {
   id: Bytes!
+  instance: Bytes!
   oldBeneficiary: Bytes! # address
   newBeneficiary: Bytes! # address
   blockNumber: BigInt!
@@ -9,6 +17,7 @@ type BeneficiaryChanged @entity(immutable: true) {
 
 type FlowRateChanged @entity(immutable: true) {
   id: Bytes!
+  instance: Bytes!
   asset: Bytes! # address
   oldRate: BigInt! # uint256
   newRate: BigInt! # uint256
@@ -19,6 +28,7 @@ type FlowRateChanged @entity(immutable: true) {
 
 type FundAdded @entity(immutable: true) {
   id: Bytes!
+  instance: Bytes!
   asset: Bytes! # address
   investor: Bytes! # address
   amount: BigInt! # uint256
@@ -30,6 +40,7 @@ type FundAdded @entity(immutable: true) {
 
 type FundsRefunded @entity(immutable: true) {
   id: Bytes!
+  instance: Bytes!
   asset: Bytes! # address
   investor: Bytes! # address
   amount: BigInt! # uint256
@@ -40,6 +51,7 @@ type FundsRefunded @entity(immutable: true) {
 
 type FundsWithdrawn @entity(immutable: true) {
   id: Bytes!
+  instance: Bytes!
   asset: Bytes! # address
   amount: BigInt! # uint256
   blockNumber: BigInt!
@@ -49,6 +61,7 @@ type FundsWithdrawn @entity(immutable: true) {
 
 type Initialized @entity(immutable: true) {
   id: Bytes!
+  instance: Bytes!
   version: BigInt! # uint64
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -57,6 +70,7 @@ type Initialized @entity(immutable: true) {
 
 type OwnershipTransferred @entity(immutable: true) {
   id: Bytes!
+  instance: Bytes!
   previousOwner: Bytes! # address
   newOwner: Bytes! # address
   blockNumber: BigInt!
@@ -66,7 +80,7 @@ type OwnershipTransferred @entity(immutable: true) {
 
 type RefundEnabled @entity(immutable: true) {
   id: Bytes!
-
+  instance: Bytes!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

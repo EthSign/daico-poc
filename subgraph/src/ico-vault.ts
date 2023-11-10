@@ -1,3 +1,4 @@
+import {dataSource} from '@graphprotocol/graph-ts'
 import {
     BeneficiaryChanged as BeneficiaryChangedEvent,
     FlowRateChanged as FlowRateChangedEvent,
@@ -30,6 +31,9 @@ export function handleBeneficiaryChanged(event: BeneficiaryChangedEvent): void {
     entity.blockTimestamp = event.block.timestamp
     entity.transactionHash = event.transaction.hash
 
+    const context = dataSource.context()
+    entity.instance = context.getBytes('instance')
+
     entity.save()
 }
 
@@ -44,6 +48,9 @@ export function handleFlowRateChanged(event: FlowRateChangedEvent): void {
     entity.blockNumber = event.block.number
     entity.blockTimestamp = event.block.timestamp
     entity.transactionHash = event.transaction.hash
+
+    const context = dataSource.context()
+    entity.instance = context.getBytes('instance')
 
     entity.save()
 }
@@ -61,6 +68,9 @@ export function handleFundAdded(event: FundAddedEvent): void {
     entity.blockTimestamp = event.block.timestamp
     entity.transactionHash = event.transaction.hash
 
+    const context = dataSource.context()
+    entity.instance = context.getBytes('instance')
+
     entity.save()
 }
 
@@ -76,6 +86,9 @@ export function handleFundsRefunded(event: FundsRefundedEvent): void {
     entity.blockTimestamp = event.block.timestamp
     entity.transactionHash = event.transaction.hash
 
+    const context = dataSource.context()
+    entity.instance = context.getBytes('instance')
+
     entity.save()
 }
 
@@ -90,6 +103,9 @@ export function handleFundsWithdrawn(event: FundsWithdrawnEvent): void {
     entity.blockTimestamp = event.block.timestamp
     entity.transactionHash = event.transaction.hash
 
+    const context = dataSource.context()
+    entity.instance = context.getBytes('instance')
+
     entity.save()
 }
 
@@ -102,6 +118,9 @@ export function handleInitialized(event: InitializedEvent): void {
     entity.blockNumber = event.block.number
     entity.blockTimestamp = event.block.timestamp
     entity.transactionHash = event.transaction.hash
+
+    const context = dataSource.context()
+    entity.instance = context.getBytes('instance')
 
     entity.save()
 }
@@ -119,6 +138,9 @@ export function handleOwnershipTransferred(
     entity.blockTimestamp = event.block.timestamp
     entity.transactionHash = event.transaction.hash
 
+    const context = dataSource.context()
+    entity.instance = context.getBytes('instance')
+
     entity.save()
 }
 
@@ -130,6 +152,9 @@ export function handleRefundEnabled(event: RefundEnabledEvent): void {
     entity.blockNumber = event.block.number
     entity.blockTimestamp = event.block.timestamp
     entity.transactionHash = event.transaction.hash
+
+    const context = dataSource.context()
+    entity.instance = context.getBytes('instance')
 
     entity.save()
 }
