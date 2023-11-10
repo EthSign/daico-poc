@@ -46,7 +46,7 @@ templates:
         - RefundEnabled
       abis:
         - name: ICOVault
-          file: ./abis/ICOVault.json
+          file: ../artifacts/contracts/ICOVault.sol/ICOVault.json
       eventHandlers:
         - event: BeneficiaryChanged(address,address)
           handler: handleBeneficiaryChanged
