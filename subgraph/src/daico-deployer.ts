@@ -1,7 +1,7 @@
 import {DataSourceContext} from '@graphprotocol/graph-ts'
 import {DAICOCustomDeployed as DAICOCustomDeployedEvent} from '../generated/DAICODeployer/DAICODeployer'
 import {DAICOCustomDeployed} from '../generated/schema'
-import {ICOVault} from '../generated/templates'
+import {DAOGovernorUpgradeable, ICOVault} from '../generated/templates'
 
 export function handleDAICOCustomDeployed(
     event: DAICOCustomDeployedEvent
@@ -17,5 +17,10 @@ export function handleDAICOCustomDeployed(
 
     if (event.params.module == 'ICOVault') {
         ICOVault.createWithContext(event.params.implemetation, context)
+    } else if (event.params.module == 'DAOGovernor') {
+        DAOGovernorUpgradeable.createWithContext(
+            event.params.implemetation,
+            context
+        )
     }
 }

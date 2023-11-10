@@ -8,7 +8,7 @@ import {
     Initialized as InitializedEvent,
     OwnershipTransferred as OwnershipTransferredEvent,
     RefundEnabled as RefundEnabledEvent
-} from '../generated/ICOVault/ICOVault'
+} from '../generated/templates/ICOVault/ICOVault'
 import {
     BeneficiaryChanged,
     FlowRateChanged,

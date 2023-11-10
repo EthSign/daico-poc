@@ -65,3 +65,48 @@ templates:
         - event: RefundEnabled()
           handler: handleRefundEnabled
       file: ./src/ico-vault.ts
+  - kind: ethereum
+    name: DAOGovernorUpgradeable
+    network: sepolia
+    source:
+      abi: DAOGovernorUpgradeable
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - EIP712DomainChanged
+        - Initialized
+        - OwnershipTransferred
+        - ProposalCanceled
+        - ProposalCreated
+        - ProposalExecuted
+        - ProposalQueued
+        - QuorumNumeratorUpdated
+        - VoteCast
+        - VoteCastWithParams
+      abis:
+        - name: DAOGovernorUpgradeable
+          file: ../artifacts/contracts/DAOGovernorUpgradeable.sol/DAOGovernorUpgradeable.json
+      eventHandlers:
+        - event: EIP712DomainChanged()
+          handler: handleEIP712DomainChanged
+        - event: Initialized(uint64)
+          handler: handleInitialized
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: ProposalCanceled(uint256)
+          handler: handleProposalCanceled
+        - event: ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)
+          handler: handleProposalCreated
+        - event: ProposalExecuted(uint256)
+          handler: handleProposalExecuted
+        - event: ProposalQueued(uint256,uint256)
+          handler: handleProposalQueued
+        - event: QuorumNumeratorUpdated(uint256,uint256)
+          handler: handleQuorumNumeratorUpdated
+        - event: VoteCast(indexed address,uint256,uint8,uint256,string)
+          handler: handleVoteCast
+        - event: VoteCastWithParams(indexed address,uint256,uint8,uint256,string,bytes)
+          handler: handleVoteCastWithParams
+      file: ./src/dao-governor.ts
