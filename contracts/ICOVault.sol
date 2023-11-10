@@ -78,6 +78,9 @@ contract ICOVault is
             address _fundingAsset,
             uint256 _fundingStartTime,
             uint256 _fundingDeadline,
+            uint256 _etherInitialFlowRate,
+            uint256 _erc20InitialFlowRate,
+            address _initialBeneficiary,
             ICOVaultExchangeRateDataSource _dataSource
         ) = abi.decode(
                 data,
@@ -86,6 +89,9 @@ contract ICOVault is
                     address,
                     uint256,
                     uint256,
+                    uint256,
+                    uint256,
+                    address,
                     ICOVaultExchangeRateDataSource
                 )
             );
@@ -94,6 +100,9 @@ contract ICOVault is
         fundingStartTime = _fundingStartTime;
         fundingDeadline = _fundingDeadline;
         dataSource = _dataSource;
+        etherAssetInfo.flowRate = _etherInitialFlowRate;
+        erc20AssetInfo.flowRate = _erc20InitialFlowRate;
+        beneficiary = _initialBeneficiary;
         IVotes(_projectToken).getVotes(address(0)); // To make sure the project token is ERC20Votes
         __ReentrancyGuard_init_unchained();
         __Ownable_init_unchained(msg.sender);
