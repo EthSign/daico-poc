@@ -59,6 +59,7 @@ export default {
     },
     etherscan: {
         apiKey: {
+            sepolia: process.env.ETHERSCAN_KEY,
             polygonMumbai: process.env.POLYGONSCAN_KEY
         }
     }
