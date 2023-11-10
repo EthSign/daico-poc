@@ -14,7 +14,7 @@ contract DAOGovernorDeployableOnceWithoutGovernance is DAOGovernorUpgradeable {
         DAICODeployer deployer,
         address implementation,
         bytes calldata data
-    ) external returns (address) {
+    ) external onlyOwner returns (address) {
         if (_hasDeployed) revert Unauthorized();
         _hasDeployed = true;
         (address _projectToken, , , , ) = abi.decode(
